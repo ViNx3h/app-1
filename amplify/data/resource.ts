@@ -21,7 +21,7 @@ const schema = a.schema({
     .model({
       nameBook: a.string().required(),
       price: a.float(),
-      author: a.belongsTo('Author', 'nameBook'),
+      author: a.string(),
 
     })
     .authorization(allow => [allow.owner()]),
