@@ -3,6 +3,7 @@ import '@aws-amplify/ui-react/styles.css';
 import { generateClient } from "aws-amplify/data";
 import { FormEvent, useEffect, useState } from "react";
 import type { Schema } from "../amplify/data/resource";
+import Popup from './Components/Popup';
 
 const client = generateClient<Schema>();
 
@@ -10,6 +11,7 @@ function App() {
   const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
   const [authors, setAuthors] = useState<Array<Schema["Author"]["type"]>>([]);
   // const [books, setBooks] = useState<Array<Schema["Book"]["type"]>>([]);
+  const [buttonUpdate, setButtonUpdate] = useState(false);
 
   useEffect(() => {
     client.models.Todo.observeQuery().subscribe({
@@ -27,6 +29,12 @@ function App() {
     client.models.Todo.create({ content: window.prompt("Todo content") });
   }
 
+  function deleteAuthor(id: any) {
+    client.models.Author.delete({ id: id })
+  }
+
+
+
   interface CreateAuthorFormElements extends HTMLFormControlsCollection {
     authorName: HTMLInputElement;
     authorDes: HTMLInputElement;
@@ -36,6 +44,15 @@ function App() {
     readonly elements: CreateAuthorFormElements;
   }
 
+
+  interface UpdateAuthorFormElements extends HTMLFormControlsCollection {
+    authorNameUpdate: HTMLInputElement;
+    authorDesUpdate: HTMLInputElement;
+  }
+
+  interface UpdateAuthorForm extends HTMLFormElement {
+    readonly elements: UpdateAuthorFormElements;
+  }
 
   const handleCreate = async (event: FormEvent<CreateAuthorForm>) => {
 
@@ -52,6 +69,25 @@ function App() {
     })
     // console.log(isCreate);
   }
+
+  const handleUpdate = async (event: FormEvent<UpdateAuthorForm>) => {
+
+    event.preventDefault();
+    const form = event.currentTarget;
+    const nameAuthor = form.elements?.authorNameUpdate?.value;
+    const desAuthor = form.elements?.authorDesUpdate?.value;
+    console.log(nameAuthor);
+    console.log(desAuthor);
+    const getId = form.id;
+
+    await client.models?.Author?.update({
+      id: getId,
+      nameAuthor: nameAuthor,
+      Description: desAuthor,
+    })
+    // console.log(isCreate);
+  }
+
 
   return (
 
@@ -78,11 +114,29 @@ function App() {
             <br />
             <ul>
               {authors.map((author) => (
-                <li key={author.id}>
-                  <div>{author.nameAuthor}</div>
-                  <br />
-                  <div>{author.Description}</div>
-                </li>
+
+                <>
+                  <li onClick={() => deleteAuthor(author.id)} key={author.id}>
+                    <div>Author: {author.nameAuthor}</div>
+                    <br />
+                    <div>Description: {author.Description}</div>
+
+                  </li>
+                  <button onClick={() => setButtonUpdate(true)}>Update</button>
+                  <div>
+                    <Popup trigger={buttonUpdate} setTrigger={setButtonUpdate}>
+                      <form onSubmit={handleUpdate} id={author.id?.toString()}>
+                        <label htmlFor="authorNameUpdate">AuthorName: </label>
+                        <input type="text" id="authorNameUpdate" name="authorNameUpdate" />
+                        <br></br>
+                        <label htmlFor="authorDesUpdate">Description: </label>
+                        <input type="text" id="authorDesUpdate" name="authorDesUpdate" />
+                        <br></br>
+                        <input type="submit" value="Update" />
+                      </form>
+                    </Popup>
+                  </div>
+                </>
               ))
 
               }
