@@ -9,7 +9,7 @@ const client = generateClient<Schema>();
 function App() {
   const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
   const [authors, setAuthors] = useState<Array<Schema["Author"]["type"]>>([]);
-  const [books, setBooks] = useState<Array<Schema["Book"]["type"]>>([]);
+  // const [books, setBooks] = useState<Array<Schema["Book"]["type"]>>([]);
 
   useEffect(() => {
     client.models.Todo.observeQuery().subscribe({
