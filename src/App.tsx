@@ -10,8 +10,7 @@ const client = generateClient<Schema>();
 function App() {
   const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
   const [authors, setAuthors] = useState<Array<Schema["Author"]["type"]>>([]);
-  // const [books, setBooks] = useState<Array<Schema["Book"]["type"]>>([]);
-  const [buttonUpdate, setButtonUpdate] = useState(false);
+  const [authorToUpdate, setAuthorToUpdate] = useState<string | null>(null); // Tracks the author to update
 
   useEffect(() => {
     client.models.Todo.observeQuery().subscribe({
@@ -33,8 +32,6 @@ function App() {
     client.models.Author.delete({ id: id })
   }
 
-
-
   interface CreateAuthorFormElements extends HTMLFormControlsCollection {
     authorName: HTMLInputElement;
     authorDes: HTMLInputElement;
@@ -43,7 +40,6 @@ function App() {
   interface CreateAuthorForm extends HTMLFormElement {
     readonly elements: CreateAuthorFormElements;
   }
-
 
   interface UpdateAuthorFormElements extends HTMLFormControlsCollection {
     authorNameUpdate: HTMLInputElement;
@@ -55,42 +51,33 @@ function App() {
   }
 
   const handleCreate = async (event: FormEvent<CreateAuthorForm>) => {
-
     event.preventDefault();
     const form = event.currentTarget;
     const nameAuthor = form.elements.authorName.value;
     const desAuthor = form.elements.authorDes.value;
-    console.log(nameAuthor);
-    console.log(desAuthor);
 
     await client.models?.Author?.create({
       nameAuthor: nameAuthor,
       Description: desAuthor,
-    })
-    // console.log(isCreate);
-  }
+    });
+  };
 
   const handleUpdate = async (event: FormEvent<UpdateAuthorForm>) => {
-
     event.preventDefault();
     const form = event.currentTarget;
     const nameAuthor = form.elements?.authorNameUpdate?.value;
     const desAuthor = form.elements?.authorDesUpdate?.value;
-    console.log(nameAuthor);
-    console.log(desAuthor);
     const getId = form.id;
 
     await client.models?.Author?.update({
       id: getId,
       nameAuthor: nameAuthor,
       Description: desAuthor,
-    })
-    // console.log(isCreate);
-  }
-
+    });
+    setAuthorToUpdate(null); // Close the popup after update
+  };
 
   return (
-
     <Authenticator>
       {({ signOut }) => (
         <main>
@@ -114,36 +101,33 @@ function App() {
             <br />
             <ul>
               {authors.map((author) => (
-
-                <>
-                  <li onClick={() => deleteAuthor(author.id)} key={author.id}>
+                <div key={author.id}>
+                  <li onClick={() => deleteAuthor(author.id)}>
                     <div>Author: {author.nameAuthor}</div>
                     <br />
                     <div>Description: {author.Description}</div>
-
                   </li>
-                  <button onClick={() => setButtonUpdate(true)}>Update</button>
-                  <div>
-                    <Popup trigger={buttonUpdate} setTrigger={setButtonUpdate}>
+                  <button onClick={() => setAuthorToUpdate(author.id)}>Update</button>
+
+                  {/* Show Popup only for the selected author */}
+                  {authorToUpdate === author.id && (
+                    <Popup trigger={true} setTrigger={() => setAuthorToUpdate(null)}>
                       <form onSubmit={handleUpdate} id={author.id?.toString()}>
                         <label htmlFor="authorNameUpdate">AuthorName: </label>
                         <input type="text" id="authorNameUpdate" name="authorNameUpdate" />
-                        <br></br>
+                        <br />
                         <label htmlFor="authorDesUpdate">Description: </label>
                         <input type="text" id="authorDesUpdate" name="authorDesUpdate" />
-                        <br></br>
+                        <br />
                         <input type="submit" value="Update" />
                       </form>
                     </Popup>
-                  </div>
-                </>
-              ))
-
-              }
+                  )}
+                </div>
+              ))}
             </ul>
           </div>
         </main>
-
       )}
     </Authenticator>
   );

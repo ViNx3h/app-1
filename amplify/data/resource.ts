@@ -15,7 +15,7 @@ const schema = a.schema({
     .model({
       nameAuthor: a.string().required(),
       Description: a.string(),
-      id: a.id(),
+      id: a.id().required(),
     }).authorization(allow => [allow.owner()]),
   Book: a
     .model({
