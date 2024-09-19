@@ -22,6 +22,7 @@ const schema = a.schema({
       nameBook: a.string().required(),
       price: a.float(),
       author: a.string(),
+      id: a.id().required(),
 
     })
     .authorization(allow => [allow.owner()]),

@@ -1,6 +1,8 @@
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import { generateClient } from "aws-amplify/data";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle';
 import { FormEvent, useEffect, useState } from "react";
 import type { Schema } from "../amplify/data/resource";
 import Popup from './Components/Popup';
@@ -11,6 +13,7 @@ function App() {
   const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
   const [authors, setAuthors] = useState<Array<Schema["Author"]["type"]>>([]);
   const [authorToUpdate, setAuthorToUpdate] = useState<string | null>(null); // Tracks the author to update
+  const [books, setBooks] = useState<Array<Schema["Book"]["type"]>>([]);
 
   useEffect(() => {
     client.models.Todo.observeQuery().subscribe({
@@ -23,6 +26,12 @@ function App() {
       next: (data) => setAuthors([...data.items])
     });
   }, []);
+
+  useEffect(() => {
+    client.models.Book?.observeQuery()?.subscribe({
+      next: (data) => setBooks([...data.items])
+    })
+  }, [])
 
   function createTodo() {
     client.models.Todo.create({ content: window.prompt("Todo content") });
@@ -50,6 +59,16 @@ function App() {
     readonly elements: UpdateAuthorFormElements;
   }
 
+  interface CreateBookFormElements extends HTMLFormControlsCollection {
+    bookName: HTMLInputElement,
+    Price: HTMLInputElement["valueAsNumber"],
+    authorBook: HTMLInputElement,
+  }
+
+  interface CreateBookForm extends HTMLFormElement {
+    readonly elements: CreateBookFormElements;
+  }
+
   const handleCreate = async (event: FormEvent<CreateAuthorForm>) => {
     event.preventDefault();
     const form = event.currentTarget;
@@ -61,6 +80,25 @@ function App() {
       Description: desAuthor,
     });
   };
+
+  const handleCreateBook = async (event: FormEvent<CreateBookForm>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const nameBook = form.elements.bookName.value;
+    const Price = form.elements.Price.valueOf();
+    const authorBook = form.elements.authorBook.value;
+
+    const isCreate = await client.models?.Book?.create({
+      nameBook: nameBook,
+      price: Price,
+      author: authorBook,
+
+    });
+
+    console.log(isCreate)
+
+  }
+
 
   const handleUpdate = async (event: FormEvent<UpdateAuthorForm>) => {
     event.preventDefault();
@@ -76,6 +114,8 @@ function App() {
     });
     setAuthorToUpdate(null); // Close the popup after update
   };
+
+
 
   return (
     <Authenticator>
@@ -124,6 +164,32 @@ function App() {
                     </Popup>
                   )}
                 </div>
+              ))}
+            </ul>
+            <ul className='bg-white'>
+              <form onSubmit={handleCreateBook}>
+                <label htmlFor="bookName">Book: </label>
+                <input type="text" id='bookName' name='bookName' />
+                <br />
+                <label htmlFor="Price">Price: </label>
+                <input type="number" id='Price' name='Price' />$
+                <br />
+                Author: <select name='authorBook' id='authorBook'>
+                  {authors.map((authorBook) => (
+                    <>
+                      <option key={authorBook.id} value={authorBook.nameAuthor}>{authorBook.nameAuthor}</option>
+                    </>
+                  ))}
+                </select>
+                <br />
+                <button type='submit'>Create book</button>
+              </form>
+              {books.map((book) => (
+                <>
+                  <li key={book.id}>Name: {book.nameBook}</li>
+                  <li key={book.id}>Price: {book.price}$</li>
+                  <li key={book.id}>Author: {book.author}</li>
+                </>
               ))}
             </ul>
           </div>
