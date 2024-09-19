@@ -1,8 +1,7 @@
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import { generateClient } from "aws-amplify/data";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle';
+
 import { FormEvent, useEffect, useState } from "react";
 import type { Schema } from "../amplify/data/resource";
 import Popup from './Components/Popup';
@@ -166,7 +165,7 @@ function App() {
                 </div>
               ))}
             </ul>
-            <ul className='bg-white'>
+            <ul style={{ backgroundColor: "white" }}>
               <form onSubmit={handleCreateBook}>
                 <label htmlFor="bookName">Book: </label>
                 <input type="text" id='bookName' name='bookName' />
