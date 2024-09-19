@@ -13,9 +13,9 @@ const client = generateClient<Schema>();
 
 function App() {
   const [authors, setAuthors] = useState<Array<Schema["Author"]["type"]>>([]);
-  const [authorToUpdate, setAuthorToUpdate] = useState<string | null>(null); // Tracks the author to update
+
   const [books, setBooks] = useState<Array<Schema["Book"]["type"]>>([]);
-  const [authorBooks, setAuthorBooks] = useState<{ [key: string]: Array<Schema["Book"]["type"]> }>({});
+
 
 
 
@@ -31,44 +31,13 @@ function App() {
     })
   }, [])
 
-  async function getBooksFromAuthor(name: string) {
-    const result = await client.models.Book.list({
-      filter: { author: { eq: name } }
-    });
-
-    // Access the list of books from the `data` field
-    const booksByAuthor = result.data;
-
-    // Updating the state for the specific author
-    setAuthorBooks(prev => ({ ...prev, [name]: booksByAuthor }));
-  }
 
 
-  function deleteAuthor(id: any) {
-    client.models.Author.delete({ id: id })
-  }
 
   function deleteBook(id: any) {
     client.models.Book.delete({ id: id })
   }
 
-  interface CreateAuthorFormElements extends HTMLFormControlsCollection {
-    authorName: HTMLInputElement;
-    authorDes: HTMLInputElement;
-  }
-
-  interface CreateAuthorForm extends HTMLFormElement {
-    readonly elements: CreateAuthorFormElements;
-  }
-
-  interface UpdateAuthorFormElements extends HTMLFormControlsCollection {
-    authorNameUpdate: HTMLInputElement;
-    authorDesUpdate: HTMLInputElement;
-  }
-
-  interface UpdateAuthorForm extends HTMLFormElement {
-    readonly elements: UpdateAuthorFormElements;
-  }
 
   interface CreateBookFormElements extends HTMLFormControlsCollection {
     bookName: HTMLInputElement,
@@ -80,17 +49,7 @@ function App() {
     readonly elements: CreateBookFormElements;
   }
 
-  const handleCreate = async (event: FormEvent<CreateAuthorForm>) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const nameAuthor = form.elements.authorName.value;
-    const desAuthor = form.elements.authorDes.value;
 
-    await client.models?.Author?.create({
-      nameAuthor: nameAuthor,
-      Description: desAuthor,
-    });
-  };
 
   const handleCreateBook = async (event: FormEvent<CreateBookForm>) => {
     event.preventDefault();
@@ -106,20 +65,7 @@ function App() {
     });
   }
 
-  const handleUpdate = async (event: FormEvent<UpdateAuthorForm>) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const nameAuthor = form.elements?.authorNameUpdate?.value;
-    const desAuthor = form.elements?.authorDesUpdate?.value;
-    const getId = form.id;
 
-    await client.models?.Author?.update({
-      id: getId,
-      nameAuthor: nameAuthor,
-      Description: desAuthor,
-    });
-    setAuthorToUpdate(null); // Close the popup after update
-  };
 
   return (
 

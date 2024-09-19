@@ -1,4 +1,5 @@
 import { generateClient } from 'aws-amplify/data';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { FormEvent, useEffect, useState } from 'react';
 import { Card } from 'react-bootstrap';
 import { Schema } from '../../amplify/data/resource';
