@@ -3,9 +3,11 @@ import '@aws-amplify/ui-react/styles.css';
 import { generateClient } from "aws-amplify/data";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FormEvent, useEffect, useState } from "react";
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 import type { Schema } from "../amplify/data/resource";
 import "../src/App.css";
-import Popup from './Components/Popup';
+import Author from './Components/Author';
+import BookPage from './Components/BookPage';
 
 const client = generateClient<Schema>();
 
@@ -120,95 +122,66 @@ function App() {
   };
 
   return (
+
     <Authenticator>
       {({ signOut }) => (
+
         <main>
-          <div className='container-fluid d-flex'>
-            <button onClick={signOut} className="btn btn-danger">Sign out</button>
 
-            <Card className='author col-6 m-3 bg-white'>
-              <h3>Authors</h3>
-              <form onSubmit={handleCreate}>
-                <label htmlFor="authorName">Author Name: </label>
-                <input type="text" id="authorName" name="authorName" />
-                <label htmlFor="authorDes">Description: </label>
-                <input type="text" id="authorDes" name="authorDes" />
-                <input type="submit" value="Create Author" />
-              </form>
+          <BrowserRouter> {/* Add BrowserRouter here */}
+            <div className='nav-bar'>
+              <ul>
+                <li>
+                  <Link to='/Book'>Book page</Link> {/* Use Link */}
+                </li>
+              </ul>
+            </div>
 
-              <ul className='bg-white'>
-                {authors.map((author) => (
-                  <div key={author.id}>
-                    <li onClick={() => deleteAuthor(author.id)}>
-                      <div>Author: {author.nameAuthor}</div>
-                      <div>Description: {author.Description}</div>
+            <Routes>
+              {/* Define routes */}
+              <Route path="/" element={
+                <div className='container-fluid d-flex'>
+                  <button onClick={signOut} className="btn btn-danger">Sign out</button>
 
-                    </li>
-                    <br />
-                    Books by {author.nameAuthor}:
-                    <ul>
-                      {authorBooks[author.nameAuthor] && authorBooks[author.nameAuthor].length > 0 ? (
-                        authorBooks[author.nameAuthor].map((book) => (
-                          <li key={book.id}>
-                            Name: {book.nameBook} <br />
-                            Price: {book.price}$ <br />
-                            Author: {book.author}
-                          </li>
-                        ))
-                      ) : (
-                        <button onClick={() => getBooksFromAuthor(author.nameAuthor)}>
-                          Load Books
-                        </button>
-                      )}
+                  <Author />
+
+                  <Card className='book col-6 mt-3'>
+                    <h3>Books</h3>
+                    <form onSubmit={handleCreateBook}>
+                      <label htmlFor="bookName">Book Name: </label>
+                      <input type="text" id='bookName' name='bookName' />
+                      <label htmlFor="Price">Price: </label>
+                      <input type="number" id='Price' name='Price' />$
+                      <label htmlFor="authorBook">Author: </label>
+                      <select name='authorBook' id='authorBook'>
+                        {authors.map((authorBook) => (
+                          <option key={authorBook.id} value={authorBook.nameAuthor}>
+                            {authorBook.nameAuthor}
+                          </option>
+                        ))}
+                      </select>
+                      <button type='submit' className="btn btn-primary">Create Book</button>
+                    </form>
+
+                    <ul className='card-map'>
+                      {books.map((book) => (
+                        <li onClick={() => deleteBook(book.id)} key={book.id}>
+                          Name: {book.nameBook} <br />
+                          Price: {book.price}$ <br />
+                          Author: {book.author}
+                        </li>
+                      ))}
                     </ul>
-                    <button className="btn btn-info" onClick={() => setAuthorToUpdate(author.id)}>Update</button>
+                  </Card>
+                </div>
+              } />
 
-                    {authorToUpdate === author.id && (
-                      <Popup trigger={true} setTrigger={() => setAuthorToUpdate(null)}>
-                        <form onSubmit={handleUpdate} id={author.id?.toString()}>
-                          <label htmlFor="authorNameUpdate">Author Name: </label>
-                          <input type="text" id="authorNameUpdate" name="authorNameUpdate" />
-                          <label htmlFor="authorDesUpdate">Description: </label>
-                          <input type="text" id="authorDesUpdate" name="authorDesUpdate" />
-                          <input type="submit" value="Update Author" className="btn btn-success" />
-                        </form>
-                      </Popup>
-                    )}
-                  </div>
-                ))}
-              </ul>
-            </Card>
-
-            <Card className='book col-6 mt-3'>
-              <h3>Books</h3>
-              <form onSubmit={handleCreateBook}>
-                <label htmlFor="bookName">Book Name: </label>
-                <input type="text" id='bookName' name='bookName' />
-                <label htmlFor="Price">Price: </label>
-                <input type="number" id='Price' name='Price' />$
-                <label htmlFor="authorBook">Author: </label>
-                <select name='authorBook' id='authorBook'>
-                  {authors.map((authorBook) => (
-                    <option key={authorBook.id} value={authorBook.nameAuthor}>
-                      {authorBook.nameAuthor}
-                    </option>
-                  ))}
-                </select>
-                <button type='submit' className="btn btn-primary">Create Book</button>
-              </form>
-
-              <ul className='card-map'>
-                {books.map((book) => (
-                  <li onClick={() => deleteBook(book.id)} key={book.id}>
-                    Name: {book.nameBook} <br />
-                    Price: {book.price}$ <br />
-                    Author: {book.author}
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          </div>
+              {/* Route for Book Page */}
+              <Route path="/Book" element={<BookPage />} />
+            </Routes>
+          </BrowserRouter>
         </main>
+
       )}
     </Authenticator>
   );
