@@ -1,24 +1,18 @@
-import { Authenticator } from '@aws-amplify/ui-react';
+import { Authenticator, Card } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import { generateClient } from "aws-amplify/data";
-
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { FormEvent, useEffect, useState } from "react";
 import type { Schema } from "../amplify/data/resource";
+import "../src/App.css";
 import Popup from './Components/Popup';
 
 const client = generateClient<Schema>();
 
 function App() {
-  const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
   const [authors, setAuthors] = useState<Array<Schema["Author"]["type"]>>([]);
   const [authorToUpdate, setAuthorToUpdate] = useState<string | null>(null); // Tracks the author to update
   const [books, setBooks] = useState<Array<Schema["Book"]["type"]>>([]);
-
-  useEffect(() => {
-    client.models.Todo.observeQuery().subscribe({
-      next: (data) => setTodos([...data.items]),
-    });
-  }, []);
 
   useEffect(() => {
     client.models.Author?.observeQuery()?.subscribe({
@@ -31,10 +25,6 @@ function App() {
       next: (data) => setBooks([...data.items])
     })
   }, [])
-
-  function createTodo() {
-    client.models.Todo.create({ content: window.prompt("Todo content") });
-  }
 
   function deleteAuthor(id: any) {
     client.models.Author.delete({ id: id })
@@ -91,20 +81,12 @@ function App() {
     const Price = form.elements.Price.value.valueOf();
     const authorBook = form.elements.authorBook.value;
 
-    console.log(nameBook);
-    console.log(Price);
-    console.log(authorBook);
-    const isCreate = await client.models?.Book?.create({
+    await client.models?.Book?.create({
       nameBook: nameBook,
       price: Price,
       author: authorBook,
-
     });
-
-    console.log(isCreate)
-
   }
-
 
   const handleUpdate = async (event: FormEvent<UpdateAuthorForm>) => {
     event.preventDefault();
@@ -121,87 +103,76 @@ function App() {
     setAuthorToUpdate(null); // Close the popup after update
   };
 
-
-
   return (
     <Authenticator>
       {({ signOut }) => (
         <main>
-          <h1>My todos</h1>
-          <button onClick={createTodo}>+ new</button>
-          <ul>
-            {todos.map((todo) => (
-              <li key={todo.id}>{todo.content}</li>
-            ))}
-          </ul>
-          <button onClick={signOut}>Sign out</button>
-          <div>
-            Authors:
-            <form onSubmit={handleCreate}>
-              <label htmlFor="authorName">AuthorName: </label>
-              <input type="text" id="authorName" name="authorName" />
-              <label htmlFor="authorDes">Description: </label>
-              <input type="text" id="authorDes" name="authorDes" />
-              <input type="submit" value="Create" />
-            </form>
-            <br />
-            <ul>
-              {authors.map((author) => (
-                <div key={author.id}>
-                  <li onClick={() => deleteAuthor(author.id)}>
-                    <div>Author: {author.nameAuthor}</div>
-                    <br />
-                    <div>Description: {author.Description}</div>
-                  </li>
-                  <button onClick={() => setAuthorToUpdate(author.id)}>Update</button>
+          <div className='container-fluid d-flex'>
+            <button onClick={signOut} className="btn btn-danger">Sign out</button>
 
-                  {/* Show Popup only for the selected author */}
-                  {authorToUpdate === author.id && (
-                    <Popup trigger={true} setTrigger={() => setAuthorToUpdate(null)}>
-                      <form onSubmit={handleUpdate} id={author.id?.toString()}>
-                        <label htmlFor="authorNameUpdate">AuthorName: </label>
-                        <input type="text" id="authorNameUpdate" name="authorNameUpdate" />
-                        <br />
-                        <label htmlFor="authorDesUpdate">Description: </label>
-                        <input type="text" id="authorDesUpdate" name="authorDesUpdate" />
-                        <br />
-                        <input type="submit" value="Update" />
-                      </form>
-                    </Popup>
-                  )}
-                </div>
-              ))}
-            </ul>
-            <ul style={{ backgroundColor: "white" }}>
+            <Card className='author col-6 m-3'>
+              <h3>Authors</h3>
+              <form onSubmit={handleCreate}>
+                <label htmlFor="authorName">Author Name: </label>
+                <input type="text" id="authorName" name="authorName" />
+                <label htmlFor="authorDes">Description: </label>
+                <input type="text" id="authorDes" name="authorDes" />
+                <input type="submit" value="Create Author" />
+              </form>
+
+              <ul>
+                {authors.map((author) => (
+                  <div key={author.id}>
+                    <li onClick={() => deleteAuthor(author.id)}>
+                      <div>Author: {author.nameAuthor}</div>
+                      <div>Description: {author.Description}</div>
+                    </li>
+                    <button className="btn btn-info" onClick={() => setAuthorToUpdate(author.id)}>Update</button>
+
+                    {authorToUpdate === author.id && (
+                      <Popup trigger={true} setTrigger={() => setAuthorToUpdate(null)}>
+                        <form onSubmit={handleUpdate} id={author.id?.toString()}>
+                          <label htmlFor="authorNameUpdate">Author Name: </label>
+                          <input type="text" id="authorNameUpdate" name="authorNameUpdate" />
+                          <label htmlFor="authorDesUpdate">Description: </label>
+                          <input type="text" id="authorDesUpdate" name="authorDesUpdate" />
+                          <input type="submit" value="Update Author" className="btn btn-success" />
+                        </form>
+                      </Popup>
+                    )}
+                  </div>
+                ))}
+              </ul>
+            </Card>
+
+            <Card className='book col-6 mt-3'>
+              <h3>Books</h3>
               <form onSubmit={handleCreateBook}>
-                <label htmlFor="bookName">Book: </label>
+                <label htmlFor="bookName">Book Name: </label>
                 <input type="text" id='bookName' name='bookName' />
-                <br />
                 <label htmlFor="Price">Price: </label>
                 <input type="number" id='Price' name='Price' />$
-                <br />
-                Author: <select name='authorBook' id='authorBook'>
+                <label htmlFor="authorBook">Author: </label>
+                <select name='authorBook' id='authorBook'>
                   {authors.map((authorBook) => (
-                    <>
-                      <option key={authorBook.id} value={authorBook.nameAuthor}>{authorBook.nameAuthor}</option>
-                    </>
+                    <option key={authorBook.id} value={authorBook.nameAuthor}>
+                      {authorBook.nameAuthor}
+                    </option>
                   ))}
                 </select>
-                <br />
-                <button type='submit'>Create book</button>
+                <button type='submit' className="btn btn-primary">Create Book</button>
               </form>
-              {books.map((book) => (
-                <>
-                  <li onClick={() => deleteBook(book.id)} key={book.id}>Name: {book.nameBook}
-                    <br />
-                    Price: {book.price}$
-                    <br />
+
+              <ul className='card-map'>
+                {books.map((book) => (
+                  <li onClick={() => deleteBook(book.id)} key={book.id}>
+                    Name: {book.nameBook} <br />
+                    Price: {book.price}$ <br />
                     Author: {book.author}
                   </li>
-
-                </>
-              ))}
-            </ul>
+                ))}
+              </ul>
+            </Card>
           </div>
         </main>
       )}
