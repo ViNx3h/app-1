@@ -20,7 +20,7 @@ const schema = a.schema({
   Book: a
     .model({
       nameBook: a.string().required(),
-      price: a.float(),
+      price: a.string(),
       author: a.string(),
       id: a.id().required(),
 

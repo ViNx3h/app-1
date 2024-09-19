@@ -40,6 +40,10 @@ function App() {
     client.models.Author.delete({ id: id })
   }
 
+  function deleteBook(id: any) {
+    client.models.Book.delete({ id: id })
+  }
+
   interface CreateAuthorFormElements extends HTMLFormControlsCollection {
     authorName: HTMLInputElement;
     authorDes: HTMLInputElement;
@@ -60,7 +64,7 @@ function App() {
 
   interface CreateBookFormElements extends HTMLFormControlsCollection {
     bookName: HTMLInputElement,
-    Price: HTMLInputElement["valueAsNumber"],
+    Price: HTMLInputElement,
     authorBook: HTMLInputElement,
   }
 
@@ -84,9 +88,12 @@ function App() {
     event.preventDefault();
     const form = event.currentTarget;
     const nameBook = form.elements.bookName.value;
-    const Price = form.elements.Price.valueOf();
+    const Price = form.elements.Price.value.valueOf();
     const authorBook = form.elements.authorBook.value;
 
+    console.log(nameBook);
+    console.log(Price);
+    console.log(authorBook);
     const isCreate = await client.models?.Book?.create({
       nameBook: nameBook,
       price: Price,
@@ -185,9 +192,13 @@ function App() {
               </form>
               {books.map((book) => (
                 <>
-                  <li key={book.id}>Name: {book.nameBook}</li>
-                  <li key={book.id}>Price: {book.price}$</li>
-                  <li key={book.id}>Author: {book.author}</li>
+                  <li onClick={() => deleteBook(book.id)} key={book.id}>Name: {book.nameBook}
+                    <br />
+                    Price: {book.price}$
+                    <br />
+                    Author: {book.author}
+                  </li>
+
                 </>
               ))}
             </ul>
