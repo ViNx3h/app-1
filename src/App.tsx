@@ -13,6 +13,9 @@ function App() {
   const [authors, setAuthors] = useState<Array<Schema["Author"]["type"]>>([]);
   const [authorToUpdate, setAuthorToUpdate] = useState<string | null>(null); // Tracks the author to update
   const [books, setBooks] = useState<Array<Schema["Book"]["type"]>>([]);
+  const [authorBooks, setAuthorBooks] = useState<{ [key: string]: Array<Schema["Book"]["type"]> }>({});
+
+
 
   useEffect(() => {
     client.models.Author?.observeQuery()?.subscribe({
@@ -25,6 +28,19 @@ function App() {
       next: (data) => setBooks([...data.items])
     })
   }, [])
+
+  async function getBooksFromAuthor(name: string) {
+    const result = await client.models.Book.list({
+      filter: { author: { eq: name } }
+    });
+
+    // Access the list of books from the `data` field
+    const booksByAuthor = result.data;
+
+    // Updating the state for the specific author
+    setAuthorBooks(prev => ({ ...prev, [name]: booksByAuthor }));
+  }
+
 
   function deleteAuthor(id: any) {
     client.models.Author.delete({ id: id })
@@ -110,7 +126,7 @@ function App() {
           <div className='container-fluid d-flex'>
             <button onClick={signOut} className="btn btn-danger">Sign out</button>
 
-            <Card className='author col-6 m-3'>
+            <Card className='author col-6 m-3 bg-white'>
               <h3>Authors</h3>
               <form onSubmit={handleCreate}>
                 <label htmlFor="authorName">Author Name: </label>
@@ -120,13 +136,31 @@ function App() {
                 <input type="submit" value="Create Author" />
               </form>
 
-              <ul>
+              <ul className='bg-white'>
                 {authors.map((author) => (
                   <div key={author.id}>
                     <li onClick={() => deleteAuthor(author.id)}>
                       <div>Author: {author.nameAuthor}</div>
                       <div>Description: {author.Description}</div>
+
                     </li>
+                    <br />
+                    Books by {author.nameAuthor}:
+                    <ul>
+                      {authorBooks[author.nameAuthor] && authorBooks[author.nameAuthor].length > 0 ? (
+                        authorBooks[author.nameAuthor].map((book) => (
+                          <li key={book.id}>
+                            Name: {book.nameBook} <br />
+                            Price: {book.price}$ <br />
+                            Author: {book.author}
+                          </li>
+                        ))
+                      ) : (
+                        <button onClick={() => getBooksFromAuthor(author.nameAuthor)}>
+                          Load Books
+                        </button>
+                      )}
+                    </ul>
                     <button className="btn btn-info" onClick={() => setAuthorToUpdate(author.id)}>Update</button>
 
                     {authorToUpdate === author.id && (
@@ -178,7 +212,7 @@ function App() {
       )}
     </Authenticator>
   );
-  
+
 }
 
 
