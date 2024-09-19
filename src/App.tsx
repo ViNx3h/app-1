@@ -75,7 +75,7 @@ function App() {
         <main>
 
           <BrowserRouter> {/* Add BrowserRouter here */}
-            <div className='nav-bar'>
+            <div className='nav-bar '>
               <ul>
                 <li>
                   <Link to='/Book'>Book page</Link> {/* Use Link */}
@@ -91,7 +91,7 @@ function App() {
 
                   <Author />
 
-                  <Card className='book col-6 mt-3'>
+                  <Card className='book col-6 mt-3 '>
                     <h3>Books</h3>
                     <form onSubmit={handleCreateBook}>
                       <label htmlFor="bookName">Book Name: </label>
