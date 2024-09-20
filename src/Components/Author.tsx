@@ -3,6 +3,7 @@ import { generateClient } from 'aws-amplify/data';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FormEvent, useEffect, useState } from 'react';
 import { Schema } from '../../amplify/data/resource';
+import "../App.css";
 import Popup from './Popup';
 
 
@@ -84,17 +85,24 @@ function Author() {
 
     return (
         <div>
-            <Card className='author m-3 bg-white'>
-                <h3>Authors</h3>
-                <form onSubmit={handleCreate}>
-                    <label htmlFor="authorName">Author Name: </label>
-                    <input type="text" id="authorName" name="authorName" />
-                    <label htmlFor="authorDes">Description: </label>
-                    <input type="text" id="authorDes" name="authorDes" />
-                    <input type="submit" value="Create Author" />
+            <Card className='m-3 bg-white flex-row'>
+                <div className='mb-3'>
+                    <h3>Authors</h3>
+                </div>
+                <form className=' flex-col' onSubmit={handleCreate}>
+                    <div className='col-span-6'>
+                        <label htmlFor="authorName" className=''>Author Name: </label>
+                        <input type="text" id="authorName" name="authorName" className='bg-zinc-400 rounded-md' />
+                    </div>
+                    <div>
+                        <label htmlFor="authorDes" className=''>Description: </label>
+                        <input type="text" id="authorDes" name="authorDes" className='bg-zinc-400 rounded-md' />
+                    </div>
+                    <br />
+                    <input type="submit" value="Create Author" className='bg-blue-500 text-white p-2 rounded-xl' />
                 </form>
 
-                <ul className='bg-white'>
+                <ul className='bg-slate-400 border-solid m-2 text-white flex'>
                     {authors.map((author) => (
                         <div key={author.id}>
                             <li onClick={() => deleteAuthor(author.id)}>
@@ -113,7 +121,7 @@ function Author() {
                                         </li>
                                     ))
                                 ) : (
-                                    <button onClick={() => getBooksFromAuthor(author.nameAuthor)}>
+                                    <button onClick={() => getBooksFromAuthor(author.nameAuthor)} className='bg-orange-300 p-1 rounded-lg'>
                                         Load Books
                                     </button>
                                 )}
@@ -122,9 +130,10 @@ function Author() {
 
                             {authorToUpdate === author.id && (
                                 <Popup trigger={true} setTrigger={() => setAuthorToUpdate(null)}>
-                                    <form onSubmit={handleUpdate} id={author.id?.toString()}>
+                                    <form className='' onSubmit={handleUpdate} id={author.id?.toString()}>
                                         <label htmlFor="authorNameUpdate">Author Name: </label>
                                         <input type="text" id="authorNameUpdate" name="authorNameUpdate" />
+                                        <br />
                                         <label htmlFor="authorDesUpdate">Description: </label>
                                         <input type="text" id="authorDesUpdate" name="authorDesUpdate" />
                                         <input type="submit" value="Update Author" className="btn btn-success" />

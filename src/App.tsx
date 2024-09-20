@@ -72,44 +72,49 @@ function App() {
     <Authenticator>
       {({ signOut }) => (
 
-        <main>
+        <main className='max-w-full '>
 
           <BrowserRouter> {/* Add BrowserRouter here */}
-            <div className='nav-bar '>
-              <ul>
-                <li>
-                  <Link to='/Book'>Book page</Link> {/* Use Link */}
+            <div className='bg-yellow-800 mt-3 h-15 rounded-xl flex justify-between'>
+              <ul className='text-wrap flex'>
+                <li className='mt-3'>
+                  <Link to='/Book' className='no-underline text-orange-400'>Book page</Link> {/* Use Link */}
                 </li>
+
               </ul>
+              <button onClick={signOut} className="btn btn-danger mr-5 p-2 m-2">Sign out</button>
             </div>
 
             <Routes>
               {/* Define routes */}
               <Route path="/" element={
-                <div className='container-fluid d-flex'>
-                  <button onClick={signOut} className="btn btn-danger">Sign out</button>
+                <div className='max-w-full flex-col'>
+
 
                   <Author />
 
-                  <Card className='book col-6 mt-3 '>
+                  <Card className='m-3 flex-col '>
                     <h3>Books</h3>
                     <form onSubmit={handleCreateBook}>
                       <label htmlFor="bookName">Book Name: </label>
-                      <input type="text" id='bookName' name='bookName' />
+                      <input type="text" id='bookName' name='bookName' className='bg-slate-200 rounded-lg'/>
+                      <br />
                       <label htmlFor="Price">Price: </label>
-                      <input type="number" id='Price' name='Price' />$
+                      <input type="number" id='Price' name='Price' className='bg-slate-200 rounded-lg'/>$
+                      <br />
                       <label htmlFor="authorBook">Author: </label>
-                      <select name='authorBook' id='authorBook'>
+                      <select name='authorBook' id='authorBook' className='bg-slate-200 rounded-lg'>
                         {authors.map((authorBook) => (
                           <option key={authorBook.id} value={authorBook.nameAuthor}>
                             {authorBook.nameAuthor}
                           </option>
                         ))}
                       </select>
+                      <br />
                       <button type='submit' className="btn btn-primary">Create Book</button>
                     </form>
 
-                    <ul className='card-map'>
+                    <ul className='bg-slate-400 text-white'>
                       {books.map((book) => (
                         <li onClick={() => deleteBook(book.id)} key={book.id}>
                           Name: {book.nameBook} <br />
