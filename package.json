@@ -15,6 +15,7 @@
     "@babel/preset-env": "^7.25.4",
     "@babel/preset-react": "^7.24.7",
     "aws-amplify": "^6.5.2",
+    "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
     "jquery": "^3.7.1",
     "popper.js": "^1.16.1",
